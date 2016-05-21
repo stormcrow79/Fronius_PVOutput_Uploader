@@ -1,30 +1,32 @@
 <?php
 
 // Configuration Options
-$dataManagerIP = "";
-$dataFile = "";
+$dataManagerIP = "192.168.1.106";
+$dataFile = "c:/tools/solar.dat";
 $pvOutputApiURL = "http://pvoutput.org/service/r2/addstatus.jsp?";
-$pvOutputApiKEY = "";
-$pvOutputSID = "";
+$pvOutputApiKEY = "cc641a0c329f000bfdd43c87b0d3545396297da1";
+$pvOutputSID = "46016";
 
 // Inverter & Smart Meter API URLs
 $inverterDataURL = "http://".$dataManagerIP."/solar_api/v1/GetInverterRealtimeData.cgi?Scope=Device&DeviceID=1&DataCollection=CommonInverterData";
 $meterDataURL = "http://".$dataManagerIP."/solar_api/v1/GetMeterRealtimeData.cgi?Scope=Device&DeviceId=0";
 
 // Define Date & Time
-date_default_timezone_set("Australia/Brisbane");
+date_default_timezone_set("Australia/Perth");
 $system_time= time();
 $date = date('Ymd', time());
 $time = date('H:i', time());
 
 // Read Meter Data
 do {
-    sleep(5);
-    $meterJSON = file_get_contents($meterDataURL);
-    $meterData = json_decode($meterJSON, true);
-    $meterPowerLive = $meterData["Body"]["Data"]["PowerReal_P_Sum"];
-    $meterImportTotal = $meterData["Body"]["Data"]["EnergyReal_WAC_Plus_Absolute"];
-    $meterExportTotal = $meterData["Body"]["Data"]["EnergyReal_WAC_Minus_Absolute"];
+  sleep(5);
+  $meterJSON = file_get_contents($meterDataURL);
+  $meterData = json_decode($meterJSON, true);
+  if (empty($meterData["Body"]))
+    break;
+  $meterPowerLive = $meterData["Body"]["Data"]["PowerReal_P_Sum"];
+  $meterImportTotal = $meterData["Body"]["Data"]["EnergyReal_WAC_Plus_Absolute"];
+  $meterExportTotal = $meterData["Body"]["Data"]["EnergyReal_WAC_Minus_Absolute"];
 } while (empty($meterPowerLive) || empty($meterImportTotal) || empty($meterExportTotal));
 
 // Read Inverter Data
@@ -72,39 +74,45 @@ $pvOutputURL = $pvOutputApiURL
                 . "&t=" .   $time
                 . "&v1=" .  $inverterEnergyDayTotal
                 . "&v2=" .  $inverterPowerLive
+                . "&v6=" .  $inverterVoltageLive;
+
+if (!empty($meterData["Body"]))
+{
+  $pvOutputURL = $pvOutputURL
                 . "&v3=" .  $consumptionEnergyDayTotal
                 . "&v4=" .  $consumptionPowerLive
-                . "&v6=" .  $inverterVoltageLive
                 . "&v7=" .  $meterExportDayTotal
                 . "&v8=" .  $meterImportDayTotal
                 . "&v9=" .  $meterPowerLive
                 . "&v10=" . $meterPowerLiveExport
                 . "&v11=" . $meterPowerLiveImport;
+}
+
 file_get_contents(trim($pvOutputURL));
 
 //Print Values to Console
-Echo "\n";
-Echo "d \t $date\n";
-Echo "t \t $time\n";
-Echo "v1 \t $inverterEnergyDayTotal\n";
-Echo "v2 \t $inverterPowerLive\n";
-Echo "v3 \t $consumptionEnergyDayTotal\n";
-Echo "v4 \t $consumptionPowerLive\n";
-Echo "v6 \t $inverterVoltageLive\n";
-Echo "v7 \t $meterExportDayTotal\n";
-Echo "v8 \t $meterImportDayTotal\n";
-Echo "v9 \t $meterPowerLive\n";
-Echo "v10 \t $meterPowerLiveExport\n";
-Echo "v11 \t $meterPowerLiveImport\n";
-Echo "\n";
-Echo "Sending data to PVOutput.org \n";
-Echo "$pvOutputURL \n";
-Echo "\n";
+echo "\n";
+echo "d \t $date\n";
+echo "t \t $time\n";
+echo "v1 \t $inverterEnergyDayTotal\n";
+echo "v2 \t $inverterPowerLive\n";
+echo "v3 \t $consumptionEnergyDayTotal\n";
+echo "v4 \t $consumptionPowerLive\n";
+echo "v6 \t $inverterVoltageLive\n";
+echo "v7 \t $meterExportDayTotal\n";
+echo "v8 \t $meterImportDayTotal\n";
+echo "v9 \t $meterPowerLive\n";
+echo "v10 \t $meterPowerLiveExport\n";
+echo "v11 \t $meterPowerLiveImport\n";
+echo "\n";
+echo "Sending data to PVOutput.org \n";
+echo "$pvOutputURL \n";
+echo "\n";
 
 // Update data file with new EOD totals
 if ($system_time > strtotime('Today 11:55pm') && $system_time < strtotime('Today 11:59pm')) {
-$saveData = serialize(array('import' => $meterImportTotal, 'export' => $meterExportTotal));
-file_put_contents($dataFile, $saveData);
+  $saveData = serialize(array('import' => $meterImportTotal, 'export' => $meterExportTotal));
+  file_put_contents($dataFile, $saveData);
 }
 
 ?>
