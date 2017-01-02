@@ -115,4 +115,21 @@ if ($system_time > strtotime('Today 11:55pm') && $system_time < strtotime('Today
   file_put_contents($dataFile, $saveData);
 }
 
+$localUrl = "http://localhost:8080/service/r2/addstatus.jsp";
+$data = array(
+    'dayEnergy' => $inverterEnergyDayTotal,
+    'instantPower' => $inverterPowerLive,
+    'instantVoltage' => $inverterVoltageLive
+);
+// use key 'http' even if you send the request to https://...
+$options = array(
+    'http' => array(
+        'header'  => "Content-type: application/json\r\n",
+        'method'  => 'POST',
+        'content' => json_encode($data)
+    )
+);
+$context  = stream_context_create($options);
+$result = file_get_contents($localUrl, false, $context);
+
 ?>
