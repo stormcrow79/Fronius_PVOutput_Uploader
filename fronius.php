@@ -115,7 +115,7 @@ if ($system_time > strtotime('Today 11:55pm') && $system_time < strtotime('Today
   file_put_contents($dataFile, $saveData);
 }
 
-$localUrl = "http://localhost:8080/service/r2/addstatus.jsp";
+$localUrl = "http://localhost:9400/service/r2/addstatus.jsp";
 $data = array(
     'dayEnergy' => $inverterEnergyDayTotal,
     'instantPower' => $inverterPowerLive,
