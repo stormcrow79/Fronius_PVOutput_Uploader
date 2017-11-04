@@ -1,7 +1,7 @@
 <?php
 
 // Configuration Options
-$dataManagerIP = "192.168.1.106";
+$dataManagerIP = "192.168.1.103";
 $dataFile = "c:/tools/solar.dat";
 $pvOutputApiURL = "http://pvoutput.org/service/r2/addstatus.jsp?";
 $pvOutputApiKEY = "cc641a0c329f000bfdd43c87b0d3545396297da1";
