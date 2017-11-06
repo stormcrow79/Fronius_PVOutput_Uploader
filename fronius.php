@@ -85,7 +85,7 @@ $pvOutputURL = $pvOutputApiURL
                 . "&v2=" .  $inverterPowerLive
                 . "&v6=" .  $inverterVoltageLive;
 
-if (!empty($meterData["Body"]))
+if (!empty($meterData["Body"]) && !empty($meterData["Body"]["Data"]))
 {
   $pvOutputURL = $pvOutputURL
                 . "&v3=" .  $consumptionEnergyDayTotal
