@@ -22,9 +22,14 @@ do {
   sleep(5);
   $meterJSON = file_get_contents($meterDataURL);
 
-  $dt = new DateTime();
-  file_put_contents(expand_tilde("~/projects/solar/data/") . $dt->format("Ymd-Hi") . ".json", $meterJSON);
-
+  $slug = expand_tilde("~/projects/solar/data/") . date("Ymd-Hi");
+  if ($meterJSON === FALSE) {
+    $err = error_get_last();
+    file_put_contents($slug . ".err", $err["message"]);
+  } else {
+    file_put_contents($slug . ".json", $meterJSON);
+  }
+  
   $meterData = json_decode($meterJSON, true);
   if (empty($meterData["Body"]))
     break;
