@@ -21,15 +21,6 @@ $time = date('H:i', time());
 do {
   sleep(5);
   $meterJSON = file_get_contents($meterDataURL);
-
-  $slug = expand_tilde("~/projects/solar/data/") . date("Ymd-Hi");
-  if ($meterJSON === FALSE) {
-    $err = error_get_last();
-    file_put_contents($slug . ".err", $err["message"]);
-  } else {
-    file_put_contents($slug . ".json", $meterJSON);
-  }
-  
   $meterData = json_decode($meterJSON, true);
   if (empty($meterData["Body"]))
     break;
@@ -41,6 +32,15 @@ do {
 // Read Inverter Data
 sleep(5);
 $inverterJSON = file_get_contents($inverterDataURL);
+
+$slug = expand_tilde("~/projects/solar/data/inverter-") . date("Ymd-Hi");
+if ($inverterJSON === FALSE) {
+  $err = error_get_last();
+  file_put_contents($slug . ".err", $err["message"]);
+} else {
+  file_put_contents($slug . ".json", $inverterJSON);
+}
+
 $inverterData = json_decode($inverterJSON, true);
 $inverterPowerLive = $inverterData["Body"]["Data"]["PAC"]["Value"];
 $inverterEnergyDayTotal = $inverterData["Body"]["Data"]["DAY_ENERGY"]["Value"];
