@@ -1,8 +1,8 @@
 <?php
 
 // Configuration Options
-$dataManagerIP = "192.168.1.106";
-$dataFile = "c:/tools/solar.dat";
+$dataManagerIP = "192.168.1.103";
+$dataFile = "~/projects/solar/data/solar.dat";
 $pvOutputApiURL = "http://pvoutput.org/service/r2/addstatus.jsp?";
 $pvOutputApiKEY = "cc641a0c329f000bfdd43c87b0d3545396297da1";
 $pvOutputSID = "46016";
@@ -21,6 +21,10 @@ $time = date('H:i', time());
 do {
   sleep(5);
   $meterJSON = file_get_contents($meterDataURL);
+
+  $dt = new DateTime();
+  file_put_contents(expand_tilde("~/projects/solar/data/") . $dt->format("Ymd-Hi") . ".json", $meterJSON);
+  
   $meterData = json_decode($meterJSON, true);
   if (empty($meterData["Body"]))
     break;
@@ -91,23 +95,23 @@ if (!empty($meterData["Body"]))
 file_get_contents(trim($pvOutputURL));
 
 //Print Values to Console
-echo "\n";
-echo "d \t $date\n";
-echo "t \t $time\n";
-echo "v1 \t $inverterEnergyDayTotal\n";
-echo "v2 \t $inverterPowerLive\n";
-echo "v3 \t $consumptionEnergyDayTotal\n";
-echo "v4 \t $consumptionPowerLive\n";
-echo "v6 \t $inverterVoltageLive\n";
-echo "v7 \t $meterExportDayTotal\n";
-echo "v8 \t $meterImportDayTotal\n";
-echo "v9 \t $meterPowerLive\n";
-echo "v10 \t $meterPowerLiveExport\n";
-echo "v11 \t $meterPowerLiveImport\n";
-echo "\n";
-echo "Sending data to PVOutput.org \n";
-echo "$pvOutputURL \n";
-echo "\n";
+Echo "\n";
+Echo "d \t $date\n";
+Echo "t \t $time\n";
+Echo "v1 \t $inverterEnergyDayTotal\n";
+Echo "v2 \t $inverterPowerLive\n";
+Echo "v3 \t $consumptionEnergyDayTotal\n";
+Echo "v4 \t $consumptionPowerLive\n";
+Echo "v6 \t $inverterVoltageLive\n";
+Echo "v7 \t $meterExportDayTotal\n";
+Echo "v8 \t $meterImportDayTotal\n";
+Echo "v9 \t $meterPowerLive\n";
+Echo "v10 \t $meterPowerLiveExport\n";
+Echo "v11 \t $meterPowerLiveImport\n";
+Echo "\n";
+Echo "Sending data to PVOutput.org \n";
+Echo "$pvOutputURL \n";
+Echo "\n";
 
 // Update data file with new EOD totals
 if ($system_time > strtotime('Today 11:55pm') && $system_time < strtotime('Today 11:59pm')) {
@@ -132,4 +136,13 @@ $options = array(
 $context  = stream_context_create($options);
 $result = file_get_contents($localUrl, false, $context);
 
+function expand_tilde($path)
+{
+    if (function_exists('posix_getuid') && strpos($path, '~') !== false) {
+        $info = posix_getpwuid(posix_getuid());
+        $path = str_replace('~', $info['dir'], $path);
+    }
+
+    return $path;
+}
 ?>
