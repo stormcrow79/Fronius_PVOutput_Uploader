@@ -1,8 +1,9 @@
 <?php
 
 // Configuration Options
+$dataFolder = "~/projects/solar";
 $dataManagerIP = "192.168.1.103";
-$dataFile = "~/projects/solar/data/solar.dat";
+$dataFile = $dataFolder."/solar.dat";
 $pvOutputApiURL = "http://pvoutput.org/service/r2/addstatus.jsp?";
 $pvOutputApiKEY = "cc641a0c329f000bfdd43c87b0d3545396297da1";
 $pvOutputSID = "46016";
@@ -16,6 +17,13 @@ date_default_timezone_set("Australia/Perth");
 $system_time= time();
 $date = date('Ymd', time());
 $time = date('H:i', time());
+
+$configFile = $dataFolder."/solar.conf";
+if (file_exists($configFile)) {
+  $conf = json_decode(file_get_contents($configFile), true);
+  $pvOutputSID = $conf["system"];
+  $pvOutputApiKEY = $conf["key"];
+}
 
 // Read Meter Data
 do {
@@ -33,12 +41,12 @@ do {
 sleep(5);
 $inverterJSON = file_get_contents($inverterDataURL);
 
-$slug = expand_tilde("~/projects/solar/data/inverter-") . date("Ymd-Hi");
+$slug = expand_tilde($dataFolder."/data/inverter-").date("Ymd-Hi");
 if ($inverterJSON === FALSE) {
   $err = error_get_last();
-  file_put_contents($slug . ".err", $err["message"]);
+  file_put_contents($slug.".err", $err["message"]);
 } else {
-  file_put_contents($slug . ".json", $inverterJSON);
+  file_put_contents($slug.".json", $inverterJSON);
 }
 
 $inverterData = json_decode($inverterJSON, true);
