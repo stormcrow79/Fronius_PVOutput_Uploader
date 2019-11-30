@@ -2,7 +2,7 @@
 
 // Configuration Options
 $dataFolder = "~/projects/solar";
-$dataManagerIP = "192.168.1.103";
+$dataManagerIP = "192.168.1.4";
 $dataFile = $dataFolder."/solar.dat";
 $pvOutputApiURL = "http://pvoutput.org/service/r2/addstatus.jsp?";
 $pvOutputApiKEY = "cc641a0c329f000bfdd43c87b0d3545396297da1";
@@ -15,6 +15,7 @@ $meterDataURL = "http://".$dataManagerIP."/solar_api/v1/GetMeterRealtimeData.cgi
 // Define Date & Time
 date_default_timezone_set("Australia/Perth");
 $system_time= time();
+$year = date('Y', time());
 $date = date('Ymd', time());
 $time = date('H:i', time());
 
@@ -41,7 +42,7 @@ do {
 sleep(5);
 $inverterJSON = file_get_contents($inverterDataURL);
 
-$slug = expand_tilde($dataFolder."/data/inverter-").date("Ymd-Hi");
+$slug = expand_tilde($dataFolder."/data/".$year."/inverter-").date("Ymd-Hi");
 if ($inverterJSON === FALSE) {
   $err = error_get_last();
   file_put_contents($slug.".err", $err["message"]);
