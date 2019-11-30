@@ -19,6 +19,21 @@ $year = date('Y', time());
 $date = date('Ymd', time());
 $time = date('H:i', time());
 
+// blackout period from 0000-0400 and 2000-0000
+$hour = date('H', time());
+if (
+    $hour == "00" ||
+    $hour == "01" ||
+    $hour == "02" ||
+    $hour == "03" ||
+    $hour == "20" ||
+    $hour == "21" ||
+    $hour == "22" ||
+    $hour == "23"
+  )
+  return;
+
+
 $configFile = $dataFolder."/solar.conf";
 if (file_exists($configFile)) {
   $conf = json_decode(file_get_contents($configFile), true);
